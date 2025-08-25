@@ -1,5 +1,5 @@
-// app/page.tsx — Single-file landing ready for VSCode (Next.js App Router)
-// Dependencias mínimas: tailwindcss (ya viene con create-next-app) y lucide-react.
+// app/page.tsx — Single-file landing (Next.js App Router)
+// Requisitos: tailwindcss (create-next-app) y lucide-react.
 // Instala: npm i lucide-react
 
 "use client";
@@ -26,12 +26,12 @@ import {
 // ————————————————————————————————————————————————
 // Config
 // ————————————————————————————————————————————————
-const WHATSAPP_NUMBER = "5493834042707"; // intl sin+
+const WHATSAPP_NUMBER = "5493834042707"; // intl sin +
 const AGENCY_NAME = "Incrementum";
 
 // Type guard para la respuesta del endpoint de contacto
 function isApiResponse(x: unknown): x is { ok?: boolean; error?: string } {
-  return typeof x === 'object' && x !== null && ('ok' in x || 'error' in x);
+  return typeof x === "object" && x !== null && ("ok" in x || "error" in x);
 }
 
 // Dataset para el gráfico de impacto global (valores relativos)
@@ -55,12 +55,12 @@ export default function Page() {
       : `Hi ${AGENCY_NAME}, I'd like to book a call.`
   )}`;
 
-  // Smoke tests + mini tests (no framework) – no rompen prod
+  // Smoke tests + mini tests
   useEffect(() => {
     runSmokeTests();
   }, []);
 
-  // Handler de formulario en una sola página (envía vía /api/contact sin abrir apps externas)
+  // Handler de formulario (POST a /api/contact, sin abrir apps externas)
   const [sending, setSending] = useState(false);
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -71,9 +71,12 @@ export default function Page() {
       message: String(fd.get("message") || ""),
     };
 
-    // Validación mínima
     if (payload.message.length < 20) {
-      alert(lang === "es" ? "El mensaje debe tener al menos 20 caracteres." : "Message must be at least 20 characters.");
+      alert(
+        lang === "es"
+          ? "El mensaje debe tener al menos 20 caracteres."
+          : "Message must be at least 20 characters."
+      );
       return;
     }
 
@@ -82,26 +85,38 @@ export default function Page() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          subject: lang === "es" ? "Automation Contacto – Incrementum" : "Automation Contact – Incrementum",
+        }),
       });
 
-      // Intentamos leer el cuerpo para mostrar errores detallados
       let data: unknown = null;
-      try { data = await res.json(); } catch {}
-
+      try {
+        data = await res.json();
+      } catch {
+        // no-op
+      }
       const parsed = isApiResponse(data) ? data : {};
 
       if (res.ok && parsed.ok !== false) {
         alert(t.form.success);
         (e.currentTarget as HTMLFormElement).reset();
       } else {
-        const msg = parsed.error || (lang === "es" ? "No pudimos enviar el mensaje. Inténtalo nuevamente." : "We couldn't send your message. Please try again.");
+        const msg =
+          parsed.error ||
+          (lang === "es"
+            ? "No pudimos enviar el mensaje. Inténtalo nuevamente."
+            : "We couldn't send your message. Please try again.");
         alert(msg);
       }
     } catch (err) {
-      // Sin fallback a mailto: mantenemos todo dentro del sitio
       console.error("/api/contact error", err);
-      alert(lang === "es" ? "No pudimos conectar con el servidor. Revisa tu conexión e intenta otra vez." : "Could not reach the server. Check your connection and try again.");
+      alert(
+        lang === "es"
+          ? "No pudimos conectar con el servidor. Revisa tu conexión e intenta otra vez."
+          : "Could not reach the server. Check your connection and try again."
+      );
     } finally {
       setSending(false);
     }
@@ -117,11 +132,21 @@ export default function Page() {
             <span className="text-lg">{AGENCY_NAME}</span>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#servicios" className="hover:text-black transition">{t.nav.services}</a>
-            <a href="#proceso" className="hover:text-black transition">{t.nav.process}</a>
-            <a href="#casos" className="hover:text-black transition">{t.nav.cases}</a>
-            <a href="#faq" className="hover:text-black transition">{t.nav.faq}</a>
-            <a href="#contacto" className="hover:text-black transition">{t.nav.contact}</a>
+            <a href="#servicios" className="hover:text-black transition">
+              {t.nav.services}
+            </a>
+            <a href="#proceso" className="hover:text-black transition">
+              {t.nav.process}
+            </a>
+            <a href="#casos" className="hover:text-black transition">
+              {t.nav.cases}
+            </a>
+            <a href="#faq" className="hover:text-black transition">
+              {t.nav.faq}
+            </a>
+            <a href="#contacto" className="hover:text-black transition">
+              {t.nav.contact}
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <button
@@ -153,7 +178,9 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
           <div className="grid lg:grid-cols-2 items-center gap-10">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#0B0F14]">{t.hero.h1}</h1>
+              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#0B0F14]">
+                {t.hero.h1}
+              </h1>
               <p className="mt-5 text-lg text-[#374151] max-w-prose">{t.hero.sub}</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
@@ -165,7 +192,10 @@ export default function Page() {
                 >
                   <MessageCircle className="w-5 h-5" /> {t.cta.connect}
                 </a>
-                <a href="#contacto" className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl border border-black/10 bg-white hover:border-black/20">
+                <a
+                  href="#contacto"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl border border-black/10 bg-white hover:border-black/20"
+                >
                   {t.cta.book} <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
@@ -180,7 +210,11 @@ export default function Page() {
               <div className="aspect-[4/3] rounded-3xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
                 <HeroArtwork />
               </div>
-              <div className="absolute -bottom-6 -right-6 w-36 h-36 rounded-3xl opacity-70 blur-2xl" style={{ background: "radial-gradient(ellipse at center, #06B6D4 0%, transparent 60%)" }} aria-hidden />
+              <div
+                className="absolute -bottom-6 -right-6 w-36 h-36 rounded-3xl opacity-70 blur-2xl"
+                style={{ background: "radial-gradient(ellipse at center, #06B6D4 0%, transparent 60%)" }}
+                aria-hidden
+              />
             </div>
           </div>
         </div>
@@ -192,10 +226,30 @@ export default function Page() {
           <h2 className="text-3xl font-bold text-[#0B0F14]">{t.sections.services}</h2>
           <p className="mt-2 text-black/70 max-w-prose">{t.copy.servicesLead}</p>
           <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ServiceCard icon={<Bot className="w-6 h-6" />} title={t.services.automation.title} desc={t.services.automation.desc} bullets={[t.bullets.lowRisk, t.bullets.quickWin]} />
-            <ServiceCard icon={<CircuitBoard className="w-6 h-6" />} title={t.services.integration.title} desc={t.services.integration.desc} bullets={[t.bullets.singleView, t.bullets.scale]} />
-            <ServiceCard icon={<Rocket className="w-6 h-6" />} title={t.services.innovation.title} desc={t.services.innovation.desc} bullets={[t.bullets.proto, t.bullets.metrics]} />
-            <ServiceCard icon={<Compass className="w-6 h-6" />} title={t.services.consulting.title} desc={t.services.consulting.desc} bullets={[t.bullets.clarity, t.bullets.enable]} />
+            <ServiceCard
+              icon={<Bot className="w-6 h-6" />}
+              title={t.services.automation.title}
+              desc={t.services.automation.desc}
+              bullets={[t.bullets.lowRisk, t.bullets.quickWin]}
+            />
+            <ServiceCard
+              icon={<CircuitBoard className="w-6 h-6" />}
+              title={t.services.integration.title}
+              desc={t.services.integration.desc}
+              bullets={[t.bullets.singleView, t.bullets.scale]}
+            />
+            <ServiceCard
+              icon={<Rocket className="w-6 h-6" />}
+              title={t.services.innovation.title}
+              desc={t.services.innovation.desc}
+              bullets={[t.bullets.proto, t.bullets.metrics]}
+            />
+            <ServiceCard
+              icon={<Compass className="w-6 h-6" />}
+              title={t.services.consulting.title}
+              desc={t.services.consulting.desc}
+              bullets={[t.bullets.clarity, t.bullets.enable]}
+            />
           </div>
         </div>
       </section>
@@ -206,10 +260,30 @@ export default function Page() {
           <h2 className="text-3xl font-bold text-[#0B0F14]">{t.sections.process}</h2>
           <p className="mt-2 text-black/70 max-w-prose">{t.copy.processLead}</p>
           <ol className="mt-10 grid md:grid-cols-4 gap-6">
-            <ProcessStep icon={<Globe className="w-5 h-5" />} title={t.process.discover.title} desc={t.process.discover.desc} index={1} />
-            <ProcessStep icon={<Workflow className="w-5 h-5" />} title={t.process.design.title} desc={t.process.design.desc} index={2} />
-            <ProcessStep icon={<Zap className="w-5 h-5" />} title={t.process.build.title} desc={t.process.build.desc} index={3} />
-            <ProcessStep icon={<Shield className="w-5 h-5" />} title={t.process.launch.title} desc={t.process.launch.desc} index={4} />
+            <ProcessStep
+              icon={<Globe className="w-5 h-5" />}
+              title={t.process.discover.title}
+              desc={t.process.discover.desc}
+              index={1}
+            />
+            <ProcessStep
+              icon={<Workflow className="w-5 h-5" />}
+              title={t.process.design.title}
+              desc={t.process.design.desc}
+              index={2}
+            />
+            <ProcessStep
+              icon={<Zap className="w-5 h-5" />}
+              title={t.process.build.title}
+              desc={t.process.build.desc}
+              index={3}
+            />
+            <ProcessStep
+              icon={<Shield className="w-5 h-5" />}
+              title={t.process.launch.title}
+              desc={t.process.launch.desc}
+              index={4}
+            />
           </ol>
         </div>
       </section>
@@ -245,15 +319,26 @@ export default function Page() {
       {/* CTA final */}
       <section className="py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>
+          <div
+            className="rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden"
+            style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}
+          >
             <div className="absolute -top-8 -right-8 w-48 h-48 rounded-3xl bg-white/10 blur-xl" aria-hidden />
             <h2 className="text-2xl sm:text-3xl font-bold max-w-2xl">{t.ctaBanner.title}</h2>
             <p className="mt-2 text-white/90 max-w-prose">{t.ctaBanner.sub}</p>
             <div className="mt-6 flex gap-3">
-              <a href={waHref} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-2 bg-white text-[#0B0F14] px-5 py-3 rounded-2xl font-medium">
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-2 bg-white text-[#0B0F14] px-5 py-3 rounded-2xl font-medium"
+              >
                 <Phone className="w-4 h-4" /> {t.cta.book}
               </a>
-              <a href="#contacto" className="inline-flex items-center gap-2 bg-transparent border border-white/60 text-white px-5 py-3 rounded-2xl font-medium hover:bg-white/10">
+              <a
+                href="#contacto"
+                className="inline-flex items-center gap-2 bg-transparent border border-white/60 text-white px-5 py-3 rounded-2xl font-medium hover:bg-white/10"
+              >
                 <Mail className="w-4 h-4" /> {t.cta.write}
               </a>
             </div>
@@ -272,28 +357,62 @@ export default function Page() {
               <li>• WhatsApp: +{WHATSAPP_NUMBER}</li>
             </ul>
             <ul className="mt-6 grid grid-cols-2 gap-3 text-sm">
-              <li className="flex items-center gap-2"><Star className="w-4 h-4" /> {t.promises.fast}</li>
-              <li className="flex items-center gap-2"><Check className="w-4 h-4" /> {t.promises.clear}</li>
-              <li className="flex items-center gap-2"><Shield className="w-4 h-4" /> {t.promises.secure}</li>
-              <li className="flex items-center gap-2"><Zap className="w-4 h-4" /> {t.promises.simple}</li>
+              <li className="flex items-center gap-2">
+                <Star className="w-4 h-4" /> {t.promises.fast}
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4" /> {t.promises.clear}
+              </li>
+              <li className="flex items-center gap-2">
+                <Shield className="w-4 h-4" /> {t.promises.secure}
+              </li>
+              <li className="flex items-center gap-2">
+                <Zap className="w-4 h-4" /> {t.promises.simple}
+              </li>
             </ul>
           </div>
-          <form onSubmit={onSubmit} className="rounded-3xl bg-[#F9FAFB] ring-1 ring-black/5 p-6 grid gap-4">
+
+          {/* IMPORTANT: sin method/action para evitar doble envío */}
+          <form onSubmit={onSubmit} action="#" noValidate className="rounded-3xl bg-[#F9FAFB] ring-1 ring-black/5 p-6 grid gap-4">
             <label className="grid gap-1">
               <span className="text-sm font-medium">{t.form.name}</span>
-              <input name="name" type="text" required placeholder={t.form.namePh} className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]" />
+              <input
+                name="name"
+                type="text"
+                required
+                placeholder={t.form.namePh}
+                className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              />
             </label>
             <label className="grid gap-1">
               <span className="text-sm font-medium">{t.form.email}</span>
-              <input name="email" type="email" required placeholder="nombre@correo.com" className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]" />
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="nombre@correo.com"
+                className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              />
             </label>
             <label className="grid gap-1">
               <span className="text-sm font-medium">{t.form.message}</span>
-              <textarea name="message" required minLength={20} rows={5} placeholder={t.form.messagePh} className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]" />
+              <textarea
+                name="message"
+                required
+                minLength={20}
+                rows={5}
+                placeholder={t.form.messagePh}
+                className="px-3 py-2 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              />
             </label>
             <div className="flex items-center justify-between">
               <div className="text-xs text-black/50">{t.form.note}</div>
-              <button type="submit" disabled={sending} className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-white disabled:opacity-60" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>
+              <button
+                type="submit"
+                disabled={sending}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-white disabled:opacity-60"
+                style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}
+              >
                 {sending ? (lang === "es" ? "Enviando…" : "Sending…") : t.form.submit}
               </button>
             </div>
@@ -308,16 +427,36 @@ export default function Page() {
             <div className="inline-flex items-center gap-2 font-semibold">
               <LogoMark /> <span>{AGENCY_NAME}</span>
             </div>
-            <p className="mt-3 text-black/60 max-w-xs">{t.footer.tagline}</p>
+            <p className="mt-3 text_black/60 max-w-xs">{t.footer.tagline}</p>
           </div>
           <div>
             <div className="font-medium text-[#0B0F14] mb-2">{t.footer.quicklinks}</div>
             <ul className="space-y-1 text-black/70">
-              <li><a href="#servicios" className="hover:text-black">{t.nav.services}</a></li>
-              <li><a href="#proceso" className="hover:text-black">{t.nav.process}</a></li>
-              <li><a href="#casos" className="hover:text-black">{t.nav.cases}</a></li>
-              <li><a href="#faq" className="hover:text-black">{t.nav.faq}</a></li>
-              <li><a href="#contacto" className="hover:text-black">{t.nav.contact}</a></li>
+              <li>
+                <a href="#servicios" className="hover:text-black">
+                  {t.nav.services}
+                </a>
+              </li>
+              <li>
+                <a href="#proceso" className="hover:text-black">
+                  {t.nav.process}
+                </a>
+              </li>
+              <li>
+                <a href="#casos" className="hover:text-black">
+                  {t.nav.cases}
+                </a>
+              </li>
+              <li>
+                <a href="#faq" className="hover:text-black">
+                  {t.nav.faq}
+                </a>
+              </li>
+              <li>
+                <a href="#contacto" className="hover:text-black">
+                  {t.nav.contact}
+                </a>
+              </li>
             </ul>
           </div>
           <div>
@@ -330,12 +469,22 @@ export default function Page() {
           <div>
             <div className="font-medium text-[#0B0F14] mb-2">{t.footer.follow}</div>
             <ul className="space-y-1 text-black/70">
-              <li><a href="#" className="hover:text-black" aria-label="LinkedIn">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-black" aria-label="Instagram">Instagram</a></li>
+              <li>
+                <a href="#" className="hover:text-black" aria-label="LinkedIn">
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-black" aria-label="Instagram">
+                  Instagram
+                </a>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 text-center text-xs text-black/50">© {new Date().getFullYear()} {AGENCY_NAME}. All rights reserved.</div>
+        <div className="mt-8 text-center text-xs text-black/50">
+          © {new Date().getFullYear()} {AGENCY_NAME}. All rights reserved.
+        </div>
       </footer>
 
       {/* util */}
@@ -344,7 +493,7 @@ export default function Page() {
         .hide-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
       `}</style>
 
-      {/* JSON-LD (mejora SEO básica) */}
+      {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -356,7 +505,14 @@ export default function Page() {
                   name: AGENCY_NAME,
                   url: "https://incrementum.example",
                   sameAs: ["https://www.linkedin.com/"],
-                  contactPoint: [{ "@type": "ContactPoint", telephone: "+" + WHATSAPP_NUMBER, contactType: "customer service", availableLanguage: ["Spanish", "English"] }]
+                  contactPoint: [
+                    {
+                      "@type": "ContactPoint",
+                      telephone: "+" + WHATSAPP_NUMBER,
+                      contactType: "customer service",
+                      availableLanguage: ["Spanish", "English"],
+                    },
+                  ],
                 }
               : {
                   "@context": "https://schema.org",
@@ -364,9 +520,16 @@ export default function Page() {
                   name: AGENCY_NAME,
                   url: "https://incrementum.example",
                   sameAs: ["https://www.linkedin.com/"],
-                  contactPoint: [{ "@type": "ContactPoint", telephone: "+" + WHATSAPP_NUMBER, contactType: "customer service", availableLanguage: ["English", "Spanish"] }]
+                  contactPoint: [
+                    {
+                      "@type": "ContactPoint",
+                      telephone: "+" + WHATSAPP_NUMBER,
+                      contactType: "customer service",
+                      availableLanguage: ["English", "Spanish"],
+                    },
+                  ],
                 }
-          )
+          ),
         }}
       />
     </div>
@@ -376,16 +539,33 @@ export default function Page() {
 // ————————————————————————————————————————————————
 // Componentes auxiliares
 // ————————————————————————————————————————————————
-function ServiceCard({ icon, title, desc, bullets }: { icon: React.ReactNode; title: string; desc: string; bullets?: string[] }) {
+function ServiceCard({
+  icon,
+  title,
+  desc,
+  bullets,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  bullets?: string[];
+}) {
   return (
     <article className="rounded-3xl bg-white ring-1 ring-black/5 p-6 shadow-sm hover:shadow-md transition">
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>{icon}</div>
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+        style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}
+      >
+        {icon}
+      </div>
       <h3 className="mt-4 font-semibold text-lg text-[#0B0F14]">{title}</h3>
       <p className="mt-2 text-sm text-black/70">{desc}</p>
       {bullets && (
         <ul className="mt-3 space-y-1 text-sm">
           {bullets.map((b, i) => (
-            <li key={i} className="flex items-center gap-2 text-black/70"><Check className="w-4 h-4" /> {b}</li>
+            <li key={i} className="flex items-center gap-2 text-black/70">
+              <Check className="w-4 h-4" /> {b}
+            </li>
           ))}
         </ul>
       )}
@@ -393,23 +573,51 @@ function ServiceCard({ icon, title, desc, bullets }: { icon: React.ReactNode; ti
   );
 }
 
-function ProcessStep({ icon, title, desc, index }: { icon: React.ReactNode; title: string; desc: string; index: number }) {
+function ProcessStep({
+  icon,
+  title,
+  desc,
+  index,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  index: number;
+}) {
   return (
     <li className="relative rounded-3xl bg-white ring-1 ring-black/5 p-6">
-      <div className="absolute -top-3 -left-3 w-10 h-10 rounded-2xl text-white grid place-items-center font-semibold" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>{index}</div>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>{icon}</div>
+      <div
+        className="absolute -top-3 -left-3 w-10 h-10 rounded-2xl text-white grid place-items-center font-semibold"
+        style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}
+      >
+        {index}
+      </div>
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+        style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}
+      >
+        {icon}
+      </div>
       <h3 className="mt-4 font-semibold text-lg text-[#0B0F14]">{title}</h3>
       <p className="mt-2 text-sm text-black/70">{desc}</p>
     </li>
   );
 }
 
-function OverallImpactChart({ data, lang }: { data: { label: string; value: number; unit?: "%" | "pts" }[]; lang: "es" | "en" }) {
-  // Normalizamos por el valor absoluto máximo para la barra
+function OverallImpactChart({
+  data,
+  lang,
+}: {
+  data: { label: string; value: number; unit?: "%" | "pts" }[];
+  lang: "es" | "en";
+}) {
   const maxAbs = Math.max(...data.map((d) => Math.abs(d.value))) || 1;
   const fmt = (v: number, u?: "%" | "pts") => `${v > 0 ? "+" : ""}${v}${u ?? "%"}`;
   const title = lang === "es" ? "Impacto Global de Automatizaciones" : "Overall Automation Impact";
-  const subtitle = lang === "es" ? "Promedios observados en implementaciones recientes" : "Averages observed across recent implementations";
+  const subtitle =
+    lang === "es"
+      ? "Promedios observados en implementaciones recientes"
+      : "Averages observed across recent implementations";
 
   return (
     <div className="mx-auto max-w-3xl text-left">
@@ -426,7 +634,9 @@ function OverallImpactChart({ data, lang }: { data: { label: string; value: numb
               <span className="text-sm text-[#0B0F14]">{d.label}</span>
               <div className="relative h-3 rounded-full bg-black/5 overflow-hidden">
                 <div
-                  className={`absolute top-0 h-full ${isNeg ? "right-1/2 origin-right" : "left-1/2 origin-left"}`}
+                  className={`absolute top-0 h-full ${
+                    isNeg ? "right-1/2 origin-right" : "left-1/2 origin-left"
+                  }`}
                   style={{
                     width: `${width / 2}%`,
                     backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)",
@@ -436,12 +646,18 @@ function OverallImpactChart({ data, lang }: { data: { label: string; value: numb
                 />
                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-black/10" aria-hidden />
               </div>
-              <span className="text-sm tabular-nums text-black/70 text-right">{fmt(d.value, d.unit)}</span>
+              <span className="text-sm tabular-nums text-black/70 text-right">
+                {fmt(d.value, d.unit)}
+              </span>
             </li>
           );
         })}
       </ul>
-      <div className="mt-2 text-[11px] text-black/50">{lang === "es" ? "Valores relativos; negativos indican reducción." : "Relative values; negatives indicate reduction."}</div>
+      <div className="mt-2 text-[11px] text-black/50">
+        {lang === "es"
+          ? "Valores relativos; negativos indican reducción."
+          : "Relative values; negatives indicate reduction."}
+      </div>
     </div>
   );
 }
@@ -456,7 +672,10 @@ function LogoMark() {
             <stop offset="100%" stopColor="#06B6D4" />
           </linearGradient>
         </defs>
-        <path d="M24 4c6 6 12 10 12 18s-6 14-12 22C18 36 12 28 12 20S18 10 24 4z" fill="url(#g)" />
+        <path
+          d="M24 4c6 6 12 10 12 18s-6 14-12 22C18 36 12 28 12 20S18 10 24 4z"
+          fill="url(#g)"
+        />
         <circle cx="24" cy="20" r="3" fill="#fff" />
         <path d="M24 20v10m0-10h8" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
       </svg>
@@ -494,7 +713,11 @@ function HeroArtwork() {
         </defs>
         <rect width="600" height="450" fill="#fff" />
         {/* Formas abstractas fluidas */}
-        <path d="M80,260 C120,160 250,120 320,200 C380,270 500,260 520,330 C540,400 380,420 260,380 C160,350 80,360 80,260 Z" fill="url(#a)" opacity="0.18" />
+        <path
+          d="M80,260 C120,160 250,120 320,200 C380,270 500,260 520,330 C540,400 380,420 260,380 C160,350 80,360 80,260 Z"
+          fill="url(#a)"
+          opacity="0.18"
+        />
         {/* Líneas/nodos */}
         <g stroke="url(#a)" strokeWidth="2" opacity="0.6">
           <path d="M120 120 H520" />
@@ -560,7 +783,16 @@ const copy = {
     ],
     promises: { fast: "Respuesta en menos de 24 h", clear: "Propuesta clara", secure: "Buenas prácticas y seguridad", simple: "Simplicidad primero" },
     ctaBanner: { title: "¿Listo para avanzar con soluciones inteligentes?", sub: "15 minutos para entender tu reto y proponer el camino más corto." },
-    form: { name: "Nombre", email: "Email", message: "Mensaje", submit: "Enviar", namePh: "Tu nombre", messagePh: "Cuéntanos brevemente tu necesidad…", note: "Respondemos en < 24h · ES/EN", success: "¡Gracias! Te responderemos en menos de 24 h." },
+    form: {
+      name: "Nombre",
+      email: "Email",
+      message: "Mensaje",
+      submit: "Enviar",
+      namePh: "Tu nombre",
+      messagePh: "Cuéntanos brevemente tu necesidad…",
+      note: "Respondemos en < 24h · ES/EN",
+      success: "¡Gracias! Te responderemos en menos de 24 h.",
+    },
     footer: { tagline: "Integramos personas y tecnología para que tu negocio evolucione.", quicklinks: "Links", contact: "Contacto", follow: "Redes" },
   },
   en: {
@@ -569,11 +801,25 @@ const copy = {
     hero: { h1: "Keep Moving, Develop Business", sub: "We integrate people and technology so your business evolves without limits." },
     cta: { connect: "Connect with us", book: "Book a call", write: "Write to us" },
     sections: { services: "Services", process: "Process", cases: "Impact", faq: "Frequently asked questions", contact: "Contact" },
-    copy: { servicesLead: "Four pillars to accelerate operations with ROI and simplicity.", processLead: "From discovery to launch in short, measurable cycles.", casesLead: "Average outcomes from recent implementations.", contactLead: "Have a specific challenge? Tell us and we’ll propose the shortest path." },
+    copy: {
+      servicesLead: "Four pillars to accelerate operations with ROI and simplicity.",
+      processLead: "From discovery to launch in short, measurable cycles.",
+      casesLead: "Average outcomes from recent implementations.",
+      contactLead: "Have a specific challenge? Tell us and we’ll propose the shortest path.",
+    },
     bullets: { lowRisk: "Low risk, high impact", quickWin: "Quick wins", singleView: "Unified view", scale: "Built to scale", proto: "Rapid prototyping", metrics: "Metrics-first", clarity: "Clear roadmap", enable: "Team enablement" },
-    services: { automation: { title: "Automation", desc: "Workflows with n8n and AI agents to remove repetitive work and reduce errors." }, integration: { title: "Integration", desc: "Connect WhatsApp, CRMs, ERPs and spreadsheets for a unified view." }, innovation: { title: "Innovation", desc: "AI prototyping focused on time-to-value and KPIs." }, consulting: { title: "Consulting", desc: "Data governance, process design and enablement." } },
+    services: {
+      automation: { title: "Automation", desc: "Workflows with n8n and AI agents to remove repetitive work and reduce errors." },
+      integration: { title: "Integration", desc: "Connect WhatsApp, CRMs, ERPs and spreadsheets for a unified view." },
+      innovation: { title: "Innovation", desc: "AI prototyping focused on time-to-value and KPIs." },
+      consulting: { title: "Consulting", desc: "Data governance, process design and enablement." },
+    },
     process: { discover: { title: "Discover", desc: "Map processes, goals and constraints." }, design: { title: "Design", desc: "Simple, secure, measurable architecture." }, build: { title: "Build", desc: "Integrations and agents in short sprints." }, launch: { title: "Launch", desc: "Monitoring, feedback and continuous improvement." } },
-    faq: [ { q: "Do you work with existing WhatsApp/CRM accounts?", a: "Yes. We integrate your current stack, avoiding unnecessary migrations." }, { q: "How do you measure impact?", a: "We define simple KPIs (time, volume, cost) and track them in dashboards." }, { q: "What timelines do you handle?", a: "First delivery in 2–3 weeks depending on scope." } ],
+    faq: [
+      { q: "Do you work with existing WhatsApp/CRM accounts?", a: "Yes. We integrate your current stack, avoiding unnecessary migrations." },
+      { q: "How do you measure impact?", a: "We define simple KPIs (time, volume, cost) and track them in dashboards." },
+      { q: "What timelines do you handle?", a: "First delivery in 2–3 weeks depending on scope." },
+    ],
     promises: { fast: "Reply in under 24h", clear: "Clear proposal", secure: "Best practices & security", simple: "Simplicity first" },
     ctaBanner: { title: "Ready to move forward with smart solutions?", sub: "15 minutes to understand your challenge and propose the shortest path." },
     form: { name: "Name", email: "Email", message: "Message", submit: "Send", namePh: "Your name", messagePh: "Briefly describe your need…", note: "Reply in < 24h · ES/EN", success: "Thanks! We will get back to you within 24h." },
@@ -582,41 +828,34 @@ const copy = {
 } as const;
 
 // ————————————————————————————————————————————————
-// Tests básicos (no modificar a menos que sea necesario)
+// Tests básicos
 // ————————————————————————————————————————————————
 function runSmokeTests() {
   try {
-    // Estructura base
     console.assert(copy.es && copy.en, "copy debe tener 'es' y 'en'");
 
-    // Las secciones existen en ambos idiomas
     const sectionKeys = ["services", "process", "cases", "faq", "contact"] as const;
     sectionKeys.forEach((k) => {
       console.assert(!!copy.es.sections[k] && !!copy.en.sections[k], `sections.${k} requerido`);
     });
 
-    // Textos clave
     console.assert(
       typeof copy.es.hero.h1 === "string" && typeof copy.en.hero.h1 === "string",
       "hero.h1 requerido"
     );
 
-    // Datos de impacto
     console.assert(Array.isArray(IMPACT_DATA) && IMPACT_DATA.length >= 5, "IMPACT_DATA mínimo 5 elementos");
     console.assert(
       IMPACT_DATA.every((d) => typeof d.value === "number" && !Number.isNaN(d.value)),
       "IMPACT_DATA valores numéricos"
     );
 
-    // FAQ presenta items en ambos idiomas
     console.assert(copy.es.faq.length > 0 && copy.en.faq.length > 0, "FAQ requerido");
 
-    // TEST EXTRA: misma estructura de keys en 'cta' entre idiomas
     const ctaKeysEs = Object.keys(copy.es.cta).sort().join(",");
     const ctaKeysEn = Object.keys(copy.en.cta).sort().join(",");
     console.assert(ctaKeysEs === ctaKeysEn, "CTA keys deben coincidir entre ES y EN");
 
-    // TEST EXTRA: construir mensajes de WhatsApp no debe lanzar y debe incluir el nombre de la agencia
     const msgEs = `Hola ${AGENCY_NAME}, quiero agendar una reunión.`;
     const msgEn = `Hi ${AGENCY_NAME}, I'd like to book a call.`;
     const esOk = encodeURIComponent(msgEs).length > 0 && msgEs.includes(AGENCY_NAME);
