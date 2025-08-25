@@ -1,20 +1,36 @@
-// app/api/contact/route.ts — endpoint Resend con logs detallados
+// app/api/contact/route.ts
 import { NextResponse } from "next/server";
 
-type Payload = { name: string; email: string; message: string; subject?: string };
+type ContactBody = {
+  name: string;
+  email: string;
+  message: string;
+  subject?: string;
+};
 
-function isValidEmail(v: string) {
+function isEmail(v: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+// Extrae mensaje de error de respuestas del provider sin usar `any`
+function extractError(x: unknown): string | null {
+  if (x && typeof x === "object") {
+    const rec = x as Record<string, unknown>;
+    if (typeof rec.error === "string") return rec.error;
+    if (typeof rec.message === "string") return rec.message;
+  }
+  return null;
 }
 
 export async function POST(req: Request) {
   try {
-    const { name, email, message, subject } = (await req.json()) as Payload;
+    const { name, email, message, subject } = (await req.json()) as ContactBody;
 
+    // Validaciones
     if (!name || !email || !message) {
       return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
     }
-    if (!isValidEmail(email)) {
+    if (!isEmail(email)) {
       return NextResponse.json({ ok: false, error: "Invalid email" }, { status: 400 });
     }
     if (message.trim().length < 20) {
@@ -45,12 +61,16 @@ export async function POST(req: Request) {
     });
 
     const text = await r.text();
-    let json: any = undefined;
-    try { json = JSON.parse(text); } catch {}
+    let json: unknown = undefined;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      // respuesta no-JSON, usamos `text` abajo
+    }
 
     if (!r.ok) {
-      console.error("[Resend error]", r.status, json || text);
-      const providerMsg = (json && (json.error || json.message)) || text || "Email provider failed";
+      const providerMsg = extractError(json) ?? (text || "Email provider failed");
+      console.error("[Resend error]", r.status, json ?? text);
       return NextResponse.json({ ok: false, error: providerMsg }, { status: 502 });
     }
 
