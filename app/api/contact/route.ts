@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from,
         to,
-        subject: "Nuevo contacto – Landing Incrementum",
+        subject: "Automation Contact – Incrementum",
         html,
         reply_to: email,
       }),
