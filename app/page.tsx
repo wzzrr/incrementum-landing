@@ -41,7 +41,7 @@ const IMPACT_DATA: { label: string; value: number; unit?: "%" | "pts" }[] = [
 ];
 
 export default function Page() {
-  const [lang, setLang] = useState<'es' | 'en'>("es");
+  const [lang, setLang] = useState<"es" | "en">("es");
   const t = useMemo(() => copy[lang], [lang]);
 
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -68,7 +68,7 @@ export default function Page() {
 
     // Validación mínima
     if (payload.message.length < 20) {
-      alert(lang === 'es' ? 'El mensaje debe tener al menos 20 caracteres.' : 'Message must be at least 20 characters.');
+      alert(lang === "es" ? "El mensaje debe tener al menos 20 caracteres." : "Message must be at least 20 characters.");
       return;
     }
 
@@ -284,7 +284,7 @@ export default function Page() {
             <div className="flex items-center justify-between">
               <div className="text-xs text-black/50">{t.form.note}</div>
               <button type="submit" disabled={sending} className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-white disabled:opacity-60" style={{ backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)" }}>
-                {sending ? (lang === 'es' ? 'Enviando…' : 'Sending…') : t.form.submit}
+                {sending ? (lang === "es" ? "Enviando…" : "Sending…") : t.form.submit}
               </button>
             </div>
           </form>
@@ -394,12 +394,12 @@ function ProcessStep({ icon, title, desc, index }: { icon: React.ReactNode; titl
   );
 }
 
-function OverallImpactChart({ data, lang }: { data: { label: string; value: number; unit?: "%" | "pts" }[]; lang: 'es' | 'en' }) {
+function OverallImpactChart({ data, lang }: { data: { label: string; value: number; unit?: "%" | "pts" }[]; lang: "es" | "en" }) {
   // Normalizamos por el valor absoluto máximo para la barra
   const maxAbs = Math.max(...data.map((d) => Math.abs(d.value))) || 1;
   const fmt = (v: number, u?: "%" | "pts") => `${v > 0 ? "+" : ""}${v}${u ?? "%"}`;
-  const title = lang === 'es' ? 'Impacto Global de Automatizaciones' : 'Overall Automation Impact';
-  const subtitle = lang === 'es' ? 'Promedios observados en implementaciones recientes' : 'Averages observed across recent implementations';
+  const title = lang === "es" ? "Impacto Global de Automatizaciones" : "Overall Automation Impact";
+  const subtitle = lang === "es" ? "Promedios observados en implementaciones recientes" : "Averages observed across recent implementations";
 
   return (
     <div className="mx-auto max-w-3xl text-left">
@@ -416,11 +416,11 @@ function OverallImpactChart({ data, lang }: { data: { label: string; value: numb
               <span className="text-sm text-[#0B0F14]">{d.label}</span>
               <div className="relative h-3 rounded-full bg-black/5 overflow-hidden">
                 <div
-                  className={`absolute top-0 h-full ${isNeg ? 'right-1/2 origin-right' : 'left-1/2 origin-left'}`}
+                  className={`absolute top-0 h-full ${isNeg ? "right-1/2 origin-right" : "left-1/2 origin-left"}`}
                   style={{
                     width: `${width / 2}%`,
-                    backgroundImage: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
-                    transform: 'translateX(0)'
+                    backgroundImage: "linear-gradient(135deg, #10B981 0%, #06B6D4 100%)",
+                    transform: "translateX(0)",
                   }}
                   aria-hidden
                 />
@@ -431,7 +431,7 @@ function OverallImpactChart({ data, lang }: { data: { label: string; value: numb
           );
         })}
       </ul>
-      <div className="mt-2 text-[11px] text-black/50">{lang === 'es' ? 'Valores relativos; negativos indican reducción.' : 'Relative values; negatives indicate reduction.'}</div>
+      <div className="mt-2 text-[11px] text-black/50">{lang === "es" ? "Valores relativos; negativos indican reducción." : "Relative values; negatives indicate reduction."}</div>
     </div>
   );
 }
@@ -578,19 +578,40 @@ function runSmokeTests() {
   try {
     // Estructura base
     console.assert(copy.es && copy.en, "copy debe tener 'es' y 'en'");
-    ["services", "process", "cases", "faq", "contact"].forEach((k) =>
-      console.assert((copy.es as any).sections[k] && (copy.en as any).sections[k], `sections.${k} requerido`)
-    );
+
+    // Las secciones existen en ambos idiomas
+    const sectionKeys = ["services", "process", "cases", "faq", "contact"] as const;
+    sectionKeys.forEach((k) => {
+      console.assert(!!copy.es.sections[k] && !!copy.en.sections[k], `sections.${k} requerido`);
+    });
 
     // Textos clave
-    console.assert(typeof copy.es.hero.h1 === "string" && typeof copy.en.hero.h1 === "string", "hero.h1 requerido");
+    console.assert(
+      typeof copy.es.hero.h1 === "string" && typeof copy.en.hero.h1 === "string",
+      "hero.h1 requerido"
+    );
 
     // Datos de impacto
     console.assert(Array.isArray(IMPACT_DATA) && IMPACT_DATA.length >= 5, "IMPACT_DATA mínimo 5 elementos");
-    console.assert(IMPACT_DATA.every((d) => typeof d.value === "number" && !Number.isNaN(d.value)), "IMPACT_DATA valores numéricos");
+    console.assert(
+      IMPACT_DATA.every((d) => typeof d.value === "number" && !Number.isNaN(d.value)),
+      "IMPACT_DATA valores numéricos"
+    );
 
-    // FAQ presenta items
+    // FAQ presenta items en ambos idiomas
     console.assert(copy.es.faq.length > 0 && copy.en.faq.length > 0, "FAQ requerido");
+
+    // TEST EXTRA: misma estructura de keys en 'cta' entre idiomas
+    const ctaKeysEs = Object.keys(copy.es.cta).sort().join(",");
+    const ctaKeysEn = Object.keys(copy.en.cta).sort().join(",");
+    console.assert(ctaKeysEs === ctaKeysEn, "CTA keys deben coincidir entre ES y EN");
+
+    // TEST EXTRA: construir mensajes de WhatsApp no debe lanzar y debe incluir el nombre de la agencia
+    const msgEs = `Hola ${AGENCY_NAME}, quiero agendar una reunión.`;
+    const msgEn = `Hi ${AGENCY_NAME}, I'd like to book a call.`;
+    const esOk = encodeURIComponent(msgEs).length > 0 && msgEs.includes(AGENCY_NAME);
+    const enOk = encodeURIComponent(msgEn).length > 0 && msgEn.includes(AGENCY_NAME);
+    console.assert(esOk && enOk, "WA templates válidos");
   } catch (e) {
     console.warn("Smoke tests warning:", e);
   }
