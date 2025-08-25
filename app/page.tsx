@@ -29,6 +29,11 @@ import {
 const WHATSAPP_NUMBER = "5493834042707"; // intl sin+
 const AGENCY_NAME = "Incrementum";
 
+// Type guard para la respuesta del endpoint de contacto
+function isApiResponse(x: unknown): x is { ok?: boolean; error?: string } {
+  return typeof x === 'object' && x !== null && ('ok' in x || 'error' in x);
+}
+
 // Dataset para el gráfico de impacto global (valores relativos)
 const IMPACT_DATA: { label: string; value: number; unit?: "%" | "pts" }[] = [
   { label: "Tiempo de respuesta", value: -48, unit: "%" },
@@ -81,14 +86,16 @@ export default function Page() {
       });
 
       // Intentamos leer el cuerpo para mostrar errores detallados
-      let data: any = null;
+      let data: unknown = null;
       try { data = await res.json(); } catch {}
 
-      if (res.ok && (!data || data.ok !== false)) {
+      const parsed = isApiResponse(data) ? data : {};
+
+      if (res.ok && parsed.ok !== false) {
         alert(t.form.success);
         (e.currentTarget as HTMLFormElement).reset();
       } else {
-        const msg = (data && data.error) || (lang === "es" ? "No pudimos enviar el mensaje. Inténtalo nuevamente." : "We couldn't send your message. Please try again.");
+        const msg = parsed.error || (lang === "es" ? "No pudimos enviar el mensaje. Inténtalo nuevamente." : "We couldn't send your message. Please try again.");
         alert(msg);
       }
     } catch (err) {
