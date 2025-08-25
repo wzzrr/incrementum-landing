@@ -55,7 +55,7 @@ export default function Page() {
     runSmokeTests();
   }, []);
 
-  // Handler de formulario en una sola página (intenta POST y hace fallback a mailto)
+  // Handler de formulario en una sola página (envía vía /api/contact sin abrir apps externas)
   const [sending, setSending] = useState(false);
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -74,24 +74,27 @@ export default function Page() {
 
     setSending(true);
     try {
-      // Si existe un endpoint /api/contact lo usa; si no, hace fallback a mailto
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (res.ok) {
+
+      // Intentamos leer el cuerpo para mostrar errores detallados
+      let data: any = null;
+      try { data = await res.json(); } catch {}
+
+      if (res.ok && (!data || data.ok !== false)) {
         alert(t.form.success);
         (e.currentTarget as HTMLFormElement).reset();
-        return;
+      } else {
+        const msg = (data && data.error) || (lang === "es" ? "No pudimos enviar el mensaje. Inténtalo nuevamente." : "We couldn't send your message. Please try again.");
+        alert(msg);
       }
-      throw new Error("No API");
-    } catch {
-      // Fallback mailto
-      const mailto = `mailto:incrementumautomation@gmail.com?subject=${encodeURIComponent("Contacto Landing")}&body=${encodeURIComponent(
-        `Nombre: ${payload.name}\nEmail: ${payload.email}\n\n${payload.message}`
-      )}`;
-      window.location.href = mailto;
+    } catch (err) {
+      // Sin fallback a mailto: mantenemos todo dentro del sitio
+      console.error("/api/contact error", err);
+      alert(lang === "es" ? "No pudimos conectar con el servidor. Revisa tu conexión e intenta otra vez." : "Could not reach the server. Check your connection and try again.");
     } finally {
       setSending(false);
     }
