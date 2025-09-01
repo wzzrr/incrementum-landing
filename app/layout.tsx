@@ -16,12 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Incrementum",
   description: "Automatizaciones y tecnología para tu negocio",
-  icons: {
-    icon: "/favicon.ico?v=2",
-    shortcut: "/favicon.ico?v=2",
-    apple: "/apple-touch-icon.png?v=2",
-  },
-  manifest: "/site.webmanifest",          // opcional si luego quieres PWA
   themeColor: "#ffffff",                  // color de la barra en móviles
 };
 
