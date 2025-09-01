@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,20 +15,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Incrementum",
-  description:
-    "Incrementum — Automatizaciones y tecnología para impulsar tu negocio.",
-  // Iconos servidos desde /public
+  description: "Automatizaciones y tecnología para tu negocio",
   icons: {
-    icon: [
-      { url: "/favicon.png?v=2", type: "image/png", sizes: "32x32" },
-      { url: "/favicon.png?v=2", type: "image/png", sizes: "16x16" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png?v=2", sizes: "180x180" }],
-    shortcut: ["/favicon.png?v=2"],
+    icon: "/favicon.ico",                 // favicon clásico
+    shortcut: "/favicon.ico",             // fallback para navegadores antiguos
+    apple: "/apple-touch-icon.png",       // soporte iOS/Safari
   },
-  // (Opcional) si más adelante agregas OG/Twitter images en /public
-  // openGraph: { images: ["/og-image.png?v=2"] },
-  // twitter: { images: ["/twitter-image.png?v=2"] },
+  manifest: "/site.webmanifest",          // opcional si luego quieres PWA
+  themeColor: "#ffffff",                  // color de la barra en móviles
 };
 
 export default function RootLayout({
@@ -37,7 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <head />
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {children}
       </body>
     </html>
