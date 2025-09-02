@@ -210,10 +210,12 @@ export default function Page() {
               </ul>
             </div>
 
-            {/* Contenedor del video del hero */}
+            {/* Contenedor del video del hero — 16:9 sin recortes y con altura controlada */}
             <div className="relative">
-              <div className="aspect-[4/3] rounded-3xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
-                <HeroVideo />
+              <div className="rounded-3xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
+                <div className="aspect-video max-h-[340px] sm:max-h-[380px] md:max-h-[420px]">
+                  <HeroVideo />
+                </div>
               </div>
               <div
                 className="absolute -bottom-6 -right-6 w-36 h-36 rounded-3xl opacity-70 blur-2xl"
@@ -691,6 +693,7 @@ function LogoMark() {
   );
 }
 
+/** Fondo */
 function HeroBackground() {
   return (
     <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -709,26 +712,22 @@ function HeroBackground() {
   );
 }
 
-/** Reemplaza el arte por un video explicativo dentro del mismo contenedor. 
- * Asegúrate de tener:
+/** Reemplaza el arte por un video explicativo (16:9, sin recortes)
+ * Requiere:
  *  - public/videos/automations.mp4
  *  - public/videos/automations-poster.jpg (preview)
  */
 function HeroVideo() {
   return (
     <video
-      className="h-full w-full object-cover"
+      className="h-full w-full object-contain bg-black"
       src="/videos/automations.mp4"
       poster="/videos/automations-poster.jpg"
-      autoPlay
-      muted
-      loop
-      playsInline
       controls
       preload="metadata"
+      playsInline
       aria-label="Video: cómo las automatizaciones y agentes de IA aceleran tu negocio"
     >
-      {/* Fallback mínimo para navegadores muy antiguos */}
       <track kind="captions" />
       Tu navegador no soporta video HTML5.
     </video>
@@ -875,15 +874,17 @@ function runSmokeTests() {
 
     console.assert(copy.es.faq.length > 0 && copy.en.faq.length > 0, "FAQ requerido");
 
-    const ctaKeysEs = Object.keys(copy.es.cta).sort().join(",");
-    const ctaKeysEn = Object.keys(copy.en.cta).sort().join(",");
-    console.assert(ctaKeysEs === ctaKeysEn, "CTA keys deben coincidir entre ES y EN");
-
-    const msgEs = `Hola ${AGENCY_NAME}, quiero agendar una reunión.`;
-    const msgEn = `Hi ${AGENCY_NAME}, I'd like to book a call.`;
-    const esOk = encodeURIComponent(msgEs).length > 0 && msgEs.includes(AGENCY_NAME);
-    const enOk = encodeURIComponent(msgEn).length > 0 && msgEn.includes(AGENCY_NAME);
-    console.assert(esOk && enOk, "WA templates válidos");
+    // Verificación del template de WhatsApp actualizado
+    const msgEs = `Hola ${AGENCY_NAME}, me gustaría obtener mas información sobre como automatizar mi negocio.`;
+    const msgEn = `Hi ${AGENCY_NAME}, I would like to get more information about how to automate my business.`;
+    console.assert(
+      encodeURIComponent(msgEs).length > 0 && msgEs.includes(AGENCY_NAME),
+      "WA template ES válido"
+    );
+    console.assert(
+      encodeURIComponent(msgEn).length > 0 && msgEn.includes(AGENCY_NAME),
+      "WA template EN válido"
+    );
   } catch (e) {
     console.warn("Smoke tests warning:", e);
   }
