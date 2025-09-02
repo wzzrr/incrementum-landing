@@ -51,8 +51,8 @@ export default function Page() {
 
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     lang === "es"
-      ? `Hola ${AGENCY_NAME}, quiero agendar una reunión.`
-      : `Hi ${AGENCY_NAME}, I'd like to book a call.`
+      ? `Hola ${AGENCY_NAME}, me gustaría obtener mas información sobre como automatizar mi negocio.`
+      : `Hi ${AGENCY_NAME}, I would like to get more information about how to automate my business.`
   )}`;
 
   // Smoke tests + mini tests
