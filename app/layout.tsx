@@ -1,4 +1,4 @@
-// app/layout.tsx
+// app/layout.tsx 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -16,18 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Incrementum",
   description: "Automatizaciones y tecnología para tu negocio",
-  icons: {
-    icon: [
-      { url: "/favicon.ico?v=4", sizes: "any" }, // multi-size .ico
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png?v=4", sizes: "180x180", type: "image/png" },
-    ],
-    shortcut: ["/favicon.ico?v=4"],
-  },
-  manifest: "/site.webmanifest", // opcional si luego quieres PWA
   themeColor: "#ffffff", // color de la barra en móviles
 };
 
@@ -38,10 +26,44 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        {/* Preload del video y del poster */}
+        <link
+          rel="preload"
+          href="/videos/automations.mp4"
+          as="video"
+          type="video/mp4"
+        />
+        <link
+          rel="preload"
+          href="/videos/automations-poster.jpg"
+          as="image"
+          type="image/jpeg"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+
+        {/* Fallback para navegadores sin soporte de video */}
+        <noscript>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "1rem",
+              backgroundColor: "#f9fafb",
+            }}
+          >
+            <p>
+              Tu navegador no soporta video HTML5.{" "}
+              <a href="/videos/automations.mp4" download>
+                Descárgalo aquí
+              </a>
+              .
+            </p>
+          </div>
+        </noscript>
       </body>
     </html>
   );

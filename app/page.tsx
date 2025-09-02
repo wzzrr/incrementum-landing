@@ -87,7 +87,10 @@ export default function Page() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
-          subject: lang === "es" ? "Automation Contacto – Incrementum" : "Automation Contact – Incrementum",
+          subject:
+            lang === "es"
+              ? "Automation Contacto – Incrementum"
+              : "Automation Contact – Incrementum",
         }),
       });
 
@@ -206,13 +209,18 @@ export default function Page() {
                 <li>• Support ES/EN</li>
               </ul>
             </div>
+
+            {/* Contenedor del video del hero */}
             <div className="relative">
               <div className="aspect-[4/3] rounded-3xl bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
-                <HeroArtwork />
+                <HeroVideo />
               </div>
               <div
                 className="absolute -bottom-6 -right-6 w-36 h-36 rounded-3xl opacity-70 blur-2xl"
-                style={{ background: "radial-gradient(ellipse at center, #06B6D4 0%, transparent 60%)" }}
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, #06B6D4 0%, transparent 60%)",
+                }}
                 aria-hidden
               />
             </div>
@@ -701,37 +709,29 @@ function HeroBackground() {
   );
 }
 
-function HeroArtwork() {
+/** Reemplaza el arte por un video explicativo dentro del mismo contenedor. 
+ * Asegúrate de tener:
+ *  - public/videos/automations.mp4
+ *  - public/videos/automations-poster.jpg (preview)
+ */
+function HeroVideo() {
   return (
-    <div className="w-full h-full relative grid place-items-center">
-      <svg viewBox="0 0 600 450" className="w-full h-full">
-        <defs>
-          <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#10B981" />
-            <stop offset="100%" stopColor="#06B6D4" />
-          </linearGradient>
-        </defs>
-        <rect width="600" height="450" fill="#fff" />
-        {/* Formas abstractas fluidas */}
-        <path
-          d="M80,260 C120,160 250,120 320,200 C380,270 500,260 520,330 C540,400 380,420 260,380 C160,350 80,360 80,260 Z"
-          fill="url(#a)"
-          opacity="0.18"
-        />
-        {/* Líneas/nodos */}
-        <g stroke="url(#a)" strokeWidth="2" opacity="0.6">
-          <path d="M120 120 H520" />
-          <path d="M160 160 H560" />
-          <path d="M200 200 H540" />
-        </g>
-        <g fill="#0B0F14" opacity="0.6">
-          <circle cx="200" cy="200" r="4" />
-          <circle cx="260" cy="220" r="4" />
-          <circle cx="340" cy="210" r="4" />
-          <circle cx="420" cy="200" r="4" />
-        </g>
-      </svg>
-    </div>
+    <video
+      className="h-full w-full object-cover"
+      src="/videos/automations.mp4"
+      poster="/videos/automations-poster.jpg"
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls
+      preload="metadata"
+      aria-label="Video: cómo las automatizaciones y agentes de IA aceleran tu negocio"
+    >
+      {/* Fallback mínimo para navegadores muy antiguos */}
+      <track kind="captions" />
+      Tu navegador no soporta video HTML5.
+    </video>
   );
 }
 
@@ -807,14 +807,28 @@ const copy = {
       casesLead: "Average outcomes from recent implementations.",
       contactLead: "Have a specific challenge? Tell us and we’ll propose the shortest path.",
     },
-    bullets: { lowRisk: "Low risk, high impact", quickWin: "Quick wins", singleView: "Unified view", scale: "Built to scale", proto: "Rapid prototyping", metrics: "Metrics-first", clarity: "Clear roadmap", enable: "Team enablement" },
+    bullets: {
+      lowRisk: "Low risk, high impact",
+      quickWin: "Quick wins",
+      singleView: "Unified view",
+      scale: "Built to scale",
+      proto: "Rapid prototyping",
+      metrics: "Metrics-first",
+      clarity: "Clear roadmap",
+      enable: "Team enablement",
+    },
     services: {
       automation: { title: "Automation", desc: "Workflows with n8n and AI agents to remove repetitive work and reduce errors." },
       integration: { title: "Integration", desc: "Connect WhatsApp, CRMs, ERPs and spreadsheets for a unified view." },
       innovation: { title: "Innovation", desc: "AI prototyping focused on time-to-value and KPIs." },
       consulting: { title: "Consulting", desc: "Data governance, process design and enablement." },
     },
-    process: { discover: { title: "Discover", desc: "Map processes, goals and constraints." }, design: { title: "Design", desc: "Simple, secure, measurable architecture." }, build: { title: "Build", desc: "Integrations and agents in short sprints." }, launch: { title: "Launch", desc: "Monitoring, feedback and continuous improvement." } },
+    process: {
+      discover: { title: "Discover", desc: "Map processes, goals and constraints." },
+      design: { title: "Design", desc: "Simple, secure, measurable architecture." },
+      build: { title: "Build", desc: "Integrations and agents in short sprints." },
+      launch: { title: "Launch", desc: "Monitoring, feedback and continuous improvement." },
+    },
     faq: [
       { q: "Do you work with existing WhatsApp/CRM accounts?", a: "Yes. We integrate your current stack, avoiding unnecessary migrations." },
       { q: "How do you measure impact?", a: "We define simple KPIs (time, volume, cost) and track them in dashboards." },
@@ -822,7 +836,16 @@ const copy = {
     ],
     promises: { fast: "Reply in under 24h", clear: "Clear proposal", secure: "Best practices & security", simple: "Simplicity first" },
     ctaBanner: { title: "Ready to move forward with smart solutions?", sub: "15 minutes to understand your challenge and propose the shortest path." },
-    form: { name: "Name", email: "Email", message: "Message", submit: "Send", namePh: "Your name", messagePh: "Briefly describe your need…", note: "Reply in < 24h · ES/EN", success: "Thanks! We will get back to you within 24h." },
+    form: {
+      name: "Name",
+      email: "Email",
+      message: "Message",
+      submit: "Send",
+      namePh: "Your name",
+      messagePh: "Briefly describe your need…",
+      note: "Reply in < 24h · ES/EN",
+      success: "Thanks! We will get back to you within 24h.",
+    },
     footer: { tagline: "We integrate people and technology so your business evolves.", quicklinks: "Quick links", contact: "Contact", follow: "Follow" },
   },
 } as const;
